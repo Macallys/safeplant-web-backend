@@ -1,0 +1,33 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Hosts/">
+    <Project Path="src/Hosts/Cloud.Api/Cloud.Api.csproj" />
+    <Project Path="src/Hosts/Plant.Host/Plant.Host.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/DeviceEdgeManagement/">
+    <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Application/DeviceEdgeManagement.Application.csproj" />
+    <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Domain/DeviceEdgeManagement.Domain.csproj" />
+    <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Infrastructure/DeviceEdgeManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/IAM/">
+    <Project Path="src/Modules/IAM/IAM.Application/IAM.Application.csproj" />
+    <Project Path="src/Modules/IAM/IAM.Domain/IAM.Domain.csproj" />
+    <Project Path="src/Modules/IAM/IAM.Infrastructure/IAM.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/PlantMonitoring/">
+    <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Application/PlantMonitoring.Application.csproj" />
+    <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Domain/PlantMonitoring.Domain.csproj" />
+    <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Infrastructure/PlantMonitoring.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/SafetyActuation/">
+    <Project Path="src/Modules/SafetyActuation/SafetyActuation.Application/SafetyActuation.Application.csproj" />
+    <Project Path="src/Modules/SafetyActuation/SafetyActuation.Domain/SafetyActuation.Domain.csproj" />
+    <Project Path="src/Modules/SafetyActuation/SafetyActuation.Infrastructure/SafetyActuation.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/SharedKernel/">
+    <Project Path="src/Modules/SharedKernel/SharedKernel.Application/SharedKernel.Application.csproj" />
+    <Project Path="src/Modules/SharedKernel/SharedKernel.Domain/SharedKernel.Domain.csproj" />
+    <Project Path="src/Modules/SharedKernel/SharedKernel.Infrastructure/SharedKernel.Infrastructure.csproj" />
+  </Folder>
+</Solution>
