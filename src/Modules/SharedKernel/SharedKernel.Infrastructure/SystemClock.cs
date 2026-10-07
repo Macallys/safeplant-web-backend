@@ -1,0 +1,8 @@
+using SharedKernel.Domain;
+
+namespace SharedKernel.Infrastructure;
+
+public sealed class SystemClock : IClock
+{
+    public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
+}
