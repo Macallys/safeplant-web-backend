@@ -1,6 +1,6 @@
 using DeviceEdgeManagement.Infrastructure;
 using IAM.Infrastructure;
-using IAM.Interface;
+using IAM.Interface.Endpoints;
 using PlantMonitoring.Infrastructure;
 using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;

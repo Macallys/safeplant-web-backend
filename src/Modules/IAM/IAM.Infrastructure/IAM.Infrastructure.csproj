@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\IAM.Domain\IAM.Domain.csproj" />
     <ProjectReference Include="..\IAM.Application\IAM.Application.csproj" />
     <ProjectReference Include="..\..\SharedKernel\SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj" />
   </ItemGroup>

@@ -1,5 +1,10 @@
 using System.Text;
-using IAM.Application;
+using IAM.Application.Services;
+using IAM.Domain.Interfaces;
+using IAM.Domain.Services;
+using IAM.Infrastructure.Persistence;
+using IAM.Infrastructure.Security;
+using IAM.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +32,7 @@ public static class IamServiceCollectionExtensions
         services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.AddSingleton<IAccessTokenReader, JwtAccessTokenReader>();
         services.AddScoped<IIamStore, EfIamStore>();
-        services.AddScoped(serviceProvider =>
+        services.AddScoped<ISignInService>(serviceProvider =>
         {
             var settings = serviceProvider.GetRequiredService<IOptions<IamSettings>>().Value;
             EnsureSettings(settings);
@@ -39,11 +44,11 @@ public static class IamServiceCollectionExtensions
                 serviceProvider.GetRequiredService<IClock>(),
                 TimeSpan.FromHours(settings.SessionHours));
         });
-        services.AddScoped(serviceProvider => new SessionAccess(
+        services.AddScoped<ISessionAccess>(serviceProvider => new SessionAccess(
             serviceProvider.GetRequiredService<IIamStore>(),
             serviceProvider.GetRequiredService<IAccessTokenReader>(),
             serviceProvider.GetRequiredService<IClock>()));
-        services.AddScoped(serviceProvider =>
+        services.AddScoped<IRecoveryService>(serviceProvider =>
         {
             var settings = serviceProvider.GetRequiredService<IOptions<IamSettings>>().Value;
             EnsureSettings(settings);
@@ -56,7 +61,7 @@ public static class IamServiceCollectionExtensions
                 TimeSpan.FromHours(settings.RecoveryHours),
                 serviceProvider.GetRequiredService<ILogger<RecoveryService>>());
         });
-        services.AddScoped(serviceProvider => new DirectoryService(
+        services.AddScoped<IDirectoryService>(serviceProvider => new DirectoryService(
             serviceProvider.GetRequiredService<IIamStore>(),
             serviceProvider.GetRequiredService<IPasswordHasher>()));
         services.AddHostedService<PlantManagerSeed>();
