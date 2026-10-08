@@ -4,13 +4,15 @@ using PlantMonitoring.Infrastructure;
 using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;
 
+LoadEnvFile();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSystemClock();
-builder.Services.AddIam();
+builder.Services.AddIam(builder.Configuration);
 builder.Services.AddPlantMonitoring();
 builder.Services.AddSafetyActuation();
 builder.Services.AddDeviceEdge();
@@ -26,6 +28,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapIamEndpoints();
 
 var summaries = new[]
 {
@@ -47,6 +51,22 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast");
 
 app.Run();
+
+static void LoadEnvFile()
+{
+    var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+    while (directory is not null)
+    {
+        var path = Path.Combine(directory.FullName, ".env");
+        if (File.Exists(path))
+        {
+            DotNetEnv.Env.NoClobber().Load(path);
+            return;
+        }
+
+        directory = directory.Parent;
+    }
+}
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

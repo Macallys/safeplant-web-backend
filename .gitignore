@@ -56,6 +56,7 @@ ScaffoldingReadMe.txt
 # Secrets and local config
 .env
 .env.*
+!.env.example
 secrets.json
 appsettings.*.local.json
 *.pfx
