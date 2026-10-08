@@ -24,8 +24,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseApiErrors();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+if(true){
     app.MapOpenApi();
     app.UseSwaggerUI(options =>
     {
