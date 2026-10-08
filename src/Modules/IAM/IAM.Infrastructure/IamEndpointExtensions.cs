@@ -21,7 +21,7 @@ public static class IamEndpointExtensions
         return app;
     }
 
-    private sealed record SignInBody(string? Email, string? Password, string? Channel);
+    public sealed record SignInBody(string? Email, string? Password, string? Channel);
 
-    private sealed record SignInResponse(string AccessToken, string Role, DateTimeOffset ExpiresAt);
+    public sealed record SignInResponse(string AccessToken, string Role, DateTimeOffset ExpiresAt);
 }

@@ -3,6 +3,7 @@ using IAM.Infrastructure;
 using PlantMonitoring.Infrastructure;
 using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 LoadEnvFile();
 
@@ -25,6 +26,10 @@ app.UseApiErrors();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
 }
 
 app.UseHttpsRedirection();
