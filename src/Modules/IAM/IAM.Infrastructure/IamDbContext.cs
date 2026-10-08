@@ -14,6 +14,8 @@ public sealed class IamDbContext : DbContext
 
     public DbSet<Session> Sessions => Set<Session>();
 
+    public DbSet<RecoveryToken> RecoveryTokens => Set<RecoveryToken>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserAccount>(account =>
@@ -36,6 +38,19 @@ public sealed class IamDbContext : DbContext
             session.Property(entry => entry.AccountId).HasColumnName("account_id");
             session.Property(entry => entry.Channel).HasColumnName("channel").HasConversion<string>().HasMaxLength(16);
             session.Property(entry => entry.ExpiresAt).HasColumnName("expires_at");
+            session.Property(entry => entry.ClosedAt).HasColumnName("closed_at");
+        });
+
+        modelBuilder.Entity<RecoveryToken>(token =>
+        {
+            token.ToTable("recovery_tokens");
+            token.HasKey(entry => entry.Id);
+            token.Property(entry => entry.Id).HasColumnName("id");
+            token.Property(entry => entry.AccountId).HasColumnName("account_id");
+            token.Property(entry => entry.TokenHash).HasColumnName("token_hash").IsRequired();
+            token.HasIndex(entry => entry.TokenHash).IsUnique();
+            token.Property(entry => entry.ExpiresAt).HasColumnName("expires_at");
+            token.Property(entry => entry.UsedAt).HasColumnName("used_at");
         });
     }
 }

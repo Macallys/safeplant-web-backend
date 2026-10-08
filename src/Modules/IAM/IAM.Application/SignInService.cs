@@ -6,14 +6,14 @@ namespace IAM.Application;
 
 public sealed class SignInService
 {
-    private readonly ISignInStore _store;
+    private readonly IIamStore _store;
     private readonly IPasswordHasher _passwords;
     private readonly IAccessTokenIssuer _tokens;
     private readonly IClock _clock;
     private readonly TimeSpan _sessionLifetime;
 
     public SignInService(
-        ISignInStore store,
+        IIamStore store,
         IPasswordHasher passwords,
         IAccessTokenIssuer tokens,
         IClock clock,
@@ -55,6 +55,7 @@ public sealed class SignInService
         var expiresAt = _clock.UtcNow.Add(_sessionLifetime);
         var session = Session.Open(Guid.NewGuid(), account.Id, parsedChannel, expiresAt);
         await _store.AddSessionAsync(session, cancellationToken);
+        await _store.SaveChangesAsync(cancellationToken);
 
         return new SignInResult(_tokens.Issue(account, session), account.Role.ToString(), expiresAt);
     }

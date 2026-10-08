@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\IAM\IAM.Application\IAM.Application.csproj" />
     <ProjectReference Include="..\..\Modules\IAM\IAM.Infrastructure\IAM.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\IAM\IAM.Interface\IAM.Interface.csproj" />
     <ProjectReference Include="..\..\Modules\SafetyActuation\SafetyActuation.Application\SafetyActuation.Application.csproj" />
     <ProjectReference Include="..\..\Modules\SafetyActuation\SafetyActuation.Infrastructure\SafetyActuation.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\DeviceEdgeManagement\DeviceEdgeManagement.Application\DeviceEdgeManagement.Application.csproj" />

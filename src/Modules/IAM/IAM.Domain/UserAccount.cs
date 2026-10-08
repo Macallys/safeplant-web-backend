@@ -28,4 +28,10 @@ public sealed class UserAccount
     public bool Accepts(Channel channel) =>
         (Role == Role.PlantManager && channel == Channel.Web)
         || (Role == Role.Supervisor && channel == Channel.Mobile);
+
+    public void ChangeRole(Role role) => Role = role;
+
+    public void SetEnabled(bool enabled) => Enabled = enabled;
+
+    public void ChangePassword(string passwordHash) => PasswordHash = passwordHash;
 }
