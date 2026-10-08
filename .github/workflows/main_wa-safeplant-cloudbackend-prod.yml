@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build src/Hosts/Cloud.Api/Cloud.Api.csproj --configuration Release
 
       - name: dotnet publish
         run: dotnet publish src/Hosts/Cloud.Api/Cloud.Api.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
