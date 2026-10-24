@@ -5,6 +5,7 @@ using PlantMonitoring.Application.Services;
 using PlantMonitoring.Domain.Interfaces;
 using PlantMonitoring.Domain.Services;
 using PlantMonitoring.Infrastructure.Persistence;
+using SharedKernel.Domain;
 
 namespace PlantMonitoring.Infrastructure;
 
@@ -28,6 +29,15 @@ public static class PlantMonitoringServiceCollectionExtensions
             PlantMonitoringPostgres.Configure(options, connectionString));
         services.AddScoped<IAreaStore, EfAreaStore>();
         services.AddScoped<IAreaService, AreaService>();
+        services.AddScoped<IThresholdStore, EfThresholdStore>();
+        services.AddScoped<IThresholdService>(serviceProvider => new ThresholdService(
+            serviceProvider.GetRequiredService<IAreaStore>(),
+            serviceProvider.GetRequiredService<IThresholdStore>(),
+            serviceProvider.GetRequiredService<IClock>(),
+            settings.Co2MinPpm,
+            settings.Co2MaxPpm,
+            settings.NoiseMinDb,
+            settings.NoiseMaxDb));
         services.AddHostedService<PlantMonitoringMigrator>();
 
         return services;

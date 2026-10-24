@@ -23,6 +23,29 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.AreaThresholds", b =>
+                {
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("area_id");
+
+                    b.Property<int>("Co2LimitPpm")
+                        .HasColumnType("integer")
+                        .HasColumnName("co2_limit_ppm");
+
+                    b.Property<int>("NoiseLimitDb")
+                        .HasColumnType("integer")
+                        .HasColumnName("noise_limit_db");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("AreaId");
+
+                    b.ToTable("area_thresholds", "public");
+                });
+
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.IndustrialArea", b =>
                 {
                     b.Property<Guid>("Id")
@@ -49,6 +72,15 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("industrial_areas", "public");
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.AreaThresholds", b =>
+                {
+                    b.HasOne("PlantMonitoring.Domain.Entities.IndustrialArea", null)
+                        .WithOne()
+                        .HasForeignKey("PlantMonitoring.Domain.Entities.AreaThresholds", "AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

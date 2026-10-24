@@ -48,6 +48,24 @@ public static class PlantMonitoringEndpointExtensions
             return Results.Ok(AreaAssembler.ToResponse(area));
         });
 
+        secured.MapPut("/api/v1/areas/{areaId}/thresholds", async (
+            string areaId,
+            ThresholdBody body,
+            HttpContext http,
+            IThresholdService thresholds,
+            CancellationToken cancellationToken) =>
+        {
+            var session = Current(http);
+            var result = await thresholds.ConfigureAsync(
+                session.Role.ToString(),
+                session.Channel.ToString(),
+                areaId,
+                body.Co2LimitPpm,
+                body.NoiseLimitDb,
+                cancellationToken);
+            return Results.Ok(ThresholdAssembler.ToResponse(result));
+        });
+
         return app;
     }
 
