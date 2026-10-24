@@ -2,6 +2,7 @@ using DeviceEdgeManagement.Infrastructure;
 using IAM.Infrastructure;
 using IAM.Interface.Endpoints;
 using PlantMonitoring.Infrastructure;
+using PlantMonitoring.Interface.Endpoints;
 using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -15,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddSystemClock();
 builder.Services.AddIam(builder.Configuration);
-builder.Services.AddPlantMonitoring();
+builder.Services.AddPlantMonitoring(builder.Configuration);
 builder.Services.AddSafetyActuation();
 builder.Services.AddDeviceEdge();
 
@@ -36,6 +37,7 @@ if(true){
 app.UseHttpsRedirection();
 
 app.MapIamEndpoints();
+app.MapPlantMonitoringEndpoints();
 
 app.Run();
 

@@ -20,6 +20,7 @@
     <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Application/PlantMonitoring.Application.csproj" />
     <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Domain/PlantMonitoring.Domain.csproj" />
     <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Infrastructure/PlantMonitoring.Infrastructure.csproj" />
+    <Project Path="src/Modules/PlantMonitoring/PlantMonitoring.Interface/PlantMonitoring.Interface.csproj" />
   </Folder>
   <Folder Name="/src/Modules/SafetyActuation/">
     <Project Path="src/Modules/SafetyActuation/SafetyActuation.Application/SafetyActuation.Application.csproj" />

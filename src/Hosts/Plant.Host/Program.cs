@@ -1,5 +1,4 @@
 using DeviceEdgeManagement.Infrastructure;
-using PlantMonitoring.Infrastructure;
 using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -10,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSystemClock();
-builder.Services.AddPlantMonitoring();
 builder.Services.AddSafetyActuation();
 builder.Services.AddDeviceEdge();
 

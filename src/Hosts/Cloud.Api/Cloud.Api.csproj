@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\Modules\DeviceEdgeManagement\DeviceEdgeManagement.Infrastructure\DeviceEdgeManagement.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\PlantMonitoring\PlantMonitoring.Application\PlantMonitoring.Application.csproj" />
     <ProjectReference Include="..\..\Modules\PlantMonitoring\PlantMonitoring.Infrastructure\PlantMonitoring.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\PlantMonitoring\PlantMonitoring.Interface\PlantMonitoring.Interface.csproj" />
   </ItemGroup>
 
 </Project>

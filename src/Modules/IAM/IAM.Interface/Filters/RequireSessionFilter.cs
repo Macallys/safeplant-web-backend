@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace IAM.Interface.Filters;
 
-internal sealed class RequireSessionFilter : IEndpointFilter
+public sealed class RequireSessionFilter : IEndpointFilter
 {
     public const string ItemKey = "iam-session";
 
