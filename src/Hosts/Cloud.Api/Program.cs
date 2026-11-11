@@ -1,4 +1,5 @@
 using DeviceEdgeManagement.Infrastructure;
+using DeviceEdgeManagement.Interface.Endpoints;
 using IAM.Infrastructure;
 using IAM.Interface.Endpoints;
 using PlantMonitoring.Infrastructure;
@@ -19,7 +20,7 @@ builder.Services.AddSystemClock();
 builder.Services.AddIam(builder.Configuration);
 builder.Services.AddPlantMonitoring(builder.Configuration);
 builder.Services.AddSafetyActuation(builder.Configuration);
-builder.Services.AddDeviceEdge();
+builder.Services.AddDeviceEdge(builder.Configuration);
 
 var app = builder.Build();
 
@@ -40,6 +41,7 @@ app.UseHttpsRedirection();
 app.MapIamEndpoints();
 app.MapPlantMonitoringEndpoints();
 app.MapSafetyActuationEndpoints();
+app.MapDeviceEdgeEndpoints();
 
 app.Run();
 

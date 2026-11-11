@@ -9,6 +9,7 @@
     <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Application/DeviceEdgeManagement.Application.csproj" />
     <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Domain/DeviceEdgeManagement.Domain.csproj" />
     <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Infrastructure/DeviceEdgeManagement.Infrastructure.csproj" />
+    <Project Path="src/Modules/DeviceEdgeManagement/DeviceEdgeManagement.Interface/DeviceEdgeManagement.Interface.csproj" />
   </Folder>
   <Folder Name="/src/Modules/IAM/">
     <Project Path="src/Modules/IAM/IAM.Application/IAM.Application.csproj" />

@@ -18,6 +18,9 @@ public sealed class EfDeviceStore : IDeviceStore
     public Task<AreaDevice?> FindByDeviceIdAsync(string deviceId, CancellationToken cancellationToken) =>
         _db.Devices.SingleOrDefaultAsync(entry => entry.DeviceId == deviceId, cancellationToken);
 
+    public async Task<IReadOnlyList<AreaDevice>> ListAsync(CancellationToken cancellationToken) =>
+        await _db.Devices.ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<AreaDevice>> ListByAreaIdAsync(Guid areaId, CancellationToken cancellationToken) =>
         await _db.Devices
             .Where(entry => entry.AreaId == areaId)
