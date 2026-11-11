@@ -30,6 +30,15 @@ public static class PlantMonitoringServiceCollectionExtensions
         services.AddScoped<IAreaStore, EfAreaStore>();
         services.AddScoped<IAreaService, AreaService>();
         services.AddScoped<IThresholdStore, EfThresholdStore>();
+        services.AddScoped<IDeviceStore, EfDeviceStore>();
+        services.AddScoped<IDeviceService, DeviceService>();
+        services.AddScoped<IReadingStore, EfReadingStore>();
+        services.AddScoped<IAreaSafetyStatus, FixedAreaSafetyStatus>();
+        services.AddScoped<IReadingService>(serviceProvider => new ReadingService(
+            serviceProvider.GetRequiredService<IAreaStore>(),
+            serviceProvider.GetRequiredService<IReadingStore>(),
+            serviceProvider.GetRequiredService<IAreaSafetyStatus>(),
+            settings.HistoryMaxDays));
         services.AddScoped<IThresholdService>(serviceProvider => new ThresholdService(
             serviceProvider.GetRequiredService<IAreaStore>(),
             serviceProvider.GetRequiredService<IThresholdStore>(),

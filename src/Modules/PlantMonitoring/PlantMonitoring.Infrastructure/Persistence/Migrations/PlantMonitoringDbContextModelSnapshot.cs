@@ -23,6 +23,39 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.AreaDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("area_id");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId");
+
+                    b.HasIndex("DeviceId")
+                        .IsUnique();
+
+                    b.ToTable("area_devices", "public");
+                });
+
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.AreaThresholds", b =>
                 {
                     b.Property<Guid>("AreaId")
@@ -44,6 +77,38 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
                     b.HasKey("AreaId");
 
                     b.ToTable("area_thresholds", "public");
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.CarbonDioxideReading", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("area_id");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("device_id");
+
+                    b.Property<int>("Ppm")
+                        .HasColumnType("integer")
+                        .HasColumnName("ppm");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId", "RecordedAt");
+
+                    b.ToTable("carbon_dioxide_readings", "public");
                 });
 
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.IndustrialArea", b =>
@@ -74,11 +139,113 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
                     b.ToTable("industrial_areas", "public");
                 });
 
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.NoiseReading", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("area_id");
+
+                    b.Property<int>("Db")
+                        .HasColumnType("integer")
+                        .HasColumnName("db");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("device_id");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId", "RecordedAt");
+
+                    b.ToTable("noise_readings", "public");
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.PresenceChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("area_id");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("device_id");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("state");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId", "RecordedAt");
+
+                    b.ToTable("presence_changes", "public");
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.AreaDevice", b =>
+                {
+                    b.HasOne("PlantMonitoring.Domain.Entities.IndustrialArea", null)
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.AreaThresholds", b =>
                 {
                     b.HasOne("PlantMonitoring.Domain.Entities.IndustrialArea", null)
                         .WithOne()
                         .HasForeignKey("PlantMonitoring.Domain.Entities.AreaThresholds", "AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.CarbonDioxideReading", b =>
+                {
+                    b.HasOne("PlantMonitoring.Domain.Entities.IndustrialArea", null)
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.NoiseReading", b =>
+                {
+                    b.HasOne("PlantMonitoring.Domain.Entities.IndustrialArea", null)
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlantMonitoring.Domain.Entities.PresenceChange", b =>
+                {
+                    b.HasOne("PlantMonitoring.Domain.Entities.IndustrialArea", null)
+                        .WithMany()
+                        .HasForeignKey("AreaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

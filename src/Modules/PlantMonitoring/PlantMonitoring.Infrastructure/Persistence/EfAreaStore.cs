@@ -21,6 +21,9 @@ public sealed class EfAreaStore : IAreaStore
     public Task<IndustrialArea?> FindByNameAsync(string name, CancellationToken cancellationToken) =>
         _db.Areas.SingleOrDefaultAsync(area => area.Name.ToLower() == name.ToLower(), cancellationToken);
 
+    public async Task<IReadOnlyList<IndustrialArea>> ListAsync(CancellationToken cancellationToken) =>
+        await _db.Areas.OrderBy(area => area.Name.ToLower()).ToListAsync(cancellationToken);
+
     public async Task AddAsync(IndustrialArea area, CancellationToken cancellationToken) =>
         await _db.Areas.AddAsync(area, cancellationToken);
 

@@ -8,6 +8,8 @@ public interface IAreaStore
 
     Task<IndustrialArea?> FindByNameAsync(string name, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<IndustrialArea>> ListAsync(CancellationToken cancellationToken);
+
     Task AddAsync(IndustrialArea area, CancellationToken cancellationToken);
 
     Task SaveChangesAsync(CancellationToken cancellationToken);
