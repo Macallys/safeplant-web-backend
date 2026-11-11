@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SafetyActuation.Domain\SafetyActuation.Domain.csproj" />
+    <ProjectReference Include="..\..\PlantMonitoring\PlantMonitoring.Domain\PlantMonitoring.Domain.csproj" />
     <ProjectReference Include="..\..\SharedKernel\SharedKernel.Application\SharedKernel.Application.csproj" />
   </ItemGroup>
 

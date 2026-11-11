@@ -4,6 +4,7 @@ using IAM.Interface.Endpoints;
 using PlantMonitoring.Infrastructure;
 using PlantMonitoring.Interface.Endpoints;
 using SafetyActuation.Infrastructure;
+using SafetyActuation.Interface.Endpoints;
 using SharedKernel.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -38,6 +39,7 @@ app.UseHttpsRedirection();
 
 app.MapIamEndpoints();
 app.MapPlantMonitoringEndpoints();
+app.MapSafetyActuationEndpoints();
 
 app.Run();
 

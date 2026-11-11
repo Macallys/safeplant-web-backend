@@ -26,6 +26,7 @@
     <Project Path="src/Modules/SafetyActuation/SafetyActuation.Application/SafetyActuation.Application.csproj" />
     <Project Path="src/Modules/SafetyActuation/SafetyActuation.Domain/SafetyActuation.Domain.csproj" />
     <Project Path="src/Modules/SafetyActuation/SafetyActuation.Infrastructure/SafetyActuation.Infrastructure.csproj" />
+    <Project Path="src/Modules/SafetyActuation/SafetyActuation.Interface/SafetyActuation.Interface.csproj" />
   </Folder>
   <Folder Name="/src/Modules/SharedKernel/">
     <Project Path="src/Modules/SharedKernel/SharedKernel.Application/SharedKernel.Application.csproj" />
