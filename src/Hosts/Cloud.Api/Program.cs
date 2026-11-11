@@ -17,7 +17,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSystemClock();
 builder.Services.AddIam(builder.Configuration);
 builder.Services.AddPlantMonitoring(builder.Configuration);
-builder.Services.AddSafetyActuation();
+builder.Services.AddSafetyActuation(builder.Configuration);
 builder.Services.AddDeviceEdge();
 
 var app = builder.Build();
