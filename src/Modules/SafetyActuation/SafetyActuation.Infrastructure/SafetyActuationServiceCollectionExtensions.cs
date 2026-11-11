@@ -30,7 +30,10 @@ public static class SafetyActuationServiceCollectionExtensions
             SafetyActuationPostgres.Configure(options, connectionString));
         services.AddScoped<IAreaSafetyStatus, EfAreaSafetyStatus>();
         services.AddScoped<IActuatorStore, EfActuatorStore>();
+        services.AddScoped<ISafetyRecordStore, EfSafetyRecordStore>();
         services.AddScoped<IOperationalStatusService, OperationalStatusService>();
+        services.AddScoped<ISafetyReadService, SafetyReadService>();
+        services.AddScoped<IOverrideService, OverrideService>();
         services.AddHostedService<SafetyActuationMigrator>();
         return services;
     }
