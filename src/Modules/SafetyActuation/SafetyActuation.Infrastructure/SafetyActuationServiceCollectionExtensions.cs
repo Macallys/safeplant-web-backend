@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PlantMonitoring.Domain.Interfaces;
 using SafetyActuation.Application.Services;
 using SafetyActuation.Domain.Interfaces;
@@ -34,6 +35,22 @@ public static class SafetyActuationServiceCollectionExtensions
         services.AddScoped<IOperationalStatusService, OperationalStatusService>();
         services.AddScoped<ISafetyReadService, SafetyReadService>();
         services.AddScoped<IOverrideService, OverrideService>();
+        services.AddScoped<ISafetySyncStore, EfSafetySyncStore>();
+        var plantKey = configuration["Ingest:PlantKey"] ?? "";
+        services.AddScoped<ISafetySyncService>(serviceProvider => new SafetySyncService(
+            plantKey,
+            serviceProvider.GetRequiredService<IAreaStore>(),
+            serviceProvider.GetRequiredService<ISafetySyncStore>()));
+        services.AddHttpClient(HttpPlantOverrideLink.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        var overrideUrl = configuration["Plant:OverrideUrl"];
+        services.AddScoped<IPlantOverrideLink>(serviceProvider => new HttpPlantOverrideLink(
+            overrideUrl,
+            plantKey,
+            serviceProvider.GetRequiredService<IHttpClientFactory>(),
+            serviceProvider.GetRequiredService<ILogger<HttpPlantOverrideLink>>()));
         services.AddHostedService<SafetyActuationMigrator>();
         return services;
     }

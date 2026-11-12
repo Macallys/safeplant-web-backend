@@ -36,6 +36,7 @@ services:
       Iam__Seed__Password: ${IAM_SEED_PASSWORD:-ChangeMe-lab-1}
       Timescale__Enabled: "true"
       Ingest__PlantKey: ${INGEST_PLANT_KEY:-lab-plant-key}
+      Plant__OverrideUrl: http://plant-host:8080
     ports:
       - "8080:8080"
     depends_on:
@@ -53,6 +54,10 @@ services:
       Mqtt__Port: "1883"
       Cloud__IngestUrl: http://cloud-api:8080
       Ingest__PlantKey: ${INGEST_PLANT_KEY:-lab-plant-key}
+      Plant__Sqlite: Data Source=/data/plant.db
+    user: "0:0"
+    volumes:
+      - plant-data:/data
     depends_on:
       - cloud-api
       - mosquitto
@@ -60,3 +65,4 @@ services:
 volumes:
   timescale-data:
   mosquitto-data:
+  plant-data:

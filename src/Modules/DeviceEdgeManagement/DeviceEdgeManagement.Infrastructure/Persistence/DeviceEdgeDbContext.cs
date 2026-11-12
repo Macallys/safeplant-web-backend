@@ -27,6 +27,7 @@ public sealed class DeviceEdgeDbContext : DbContext
             credential.Property(entry => entry.IssuedAt).HasColumnName("issued_at");
             credential.Property(entry => entry.ExpiresAt).HasColumnName("expires_at");
             credential.Property(entry => entry.RevokedAt).HasColumnName("revoked_at");
+            credential.Property(entry => entry.LastSeenAt).HasColumnName("last_seen_at");
         });
     }
 }

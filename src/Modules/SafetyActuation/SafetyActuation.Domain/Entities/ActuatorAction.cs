@@ -15,4 +15,19 @@ public sealed class ActuatorAction
     public bool Succeeded { get; private set; }
 
     public DateTimeOffset RecordedAt { get; private set; }
+
+    public static ActuatorAction Record(
+        Guid id,
+        Guid areaId,
+        string type,
+        bool succeeded,
+        DateTimeOffset recordedAt) =>
+        new()
+        {
+            Id = id,
+            AreaId = areaId,
+            Type = type,
+            Succeeded = succeeded,
+            RecordedAt = recordedAt,
+        };
 }

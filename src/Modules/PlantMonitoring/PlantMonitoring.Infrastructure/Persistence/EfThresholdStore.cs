@@ -17,6 +17,9 @@ public sealed class EfThresholdStore : IThresholdStore
     public Task<AreaThresholds?> FindByAreaIdAsync(Guid areaId, CancellationToken cancellationToken) =>
         _db.Thresholds.SingleOrDefaultAsync(entry => entry.AreaId == areaId, cancellationToken);
 
+    public async Task<IReadOnlyList<AreaThresholds>> ListAsync(CancellationToken cancellationToken) =>
+        await _db.Thresholds.OrderBy(entry => entry.AreaId).ToListAsync(cancellationToken);
+
     public async Task<AreaThresholds> AddAsync(AreaThresholds thresholds, CancellationToken cancellationToken)
     {
         await _db.Thresholds.AddAsync(thresholds, cancellationToken);

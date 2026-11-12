@@ -112,7 +112,8 @@ public sealed class DeviceCredentialService : IDeviceCredentialService
                     association?.Kind,
                     credential.IssuedAt,
                     credential.ExpiresAt,
-                    credential.RevokedAt);
+                    credential.RevokedAt,
+                    credential.LastSeenAt);
             })
             .ToArray();
     }

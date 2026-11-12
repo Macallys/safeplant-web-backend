@@ -44,8 +44,10 @@ if (ListensOnHttps(builder.Configuration["ASPNETCORE_URLS"]))
 app.MapIamEndpoints();
 app.MapPlantMonitoringEndpoints();
 app.MapSafetyActuationEndpoints();
+app.MapSafetySyncEndpoint();
 app.MapDeviceEdgeEndpoints();
 app.MapTelemetryIngestEndpoint();
+app.MapPlantSheetEndpoint();
 
 app.Run();
 

@@ -1,4 +1,5 @@
 using DeviceEdgeManagement.Infrastructure;
+using DeviceEdgeManagement.Infrastructure.Endpoints;
 using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -30,6 +31,8 @@ if (ListensOnHttps(builder.Configuration["ASPNETCORE_URLS"]))
 {
     app.UseHttpsRedirection();
 }
+
+app.MapPlantHostEndpoints();
 
 app.Run();
 

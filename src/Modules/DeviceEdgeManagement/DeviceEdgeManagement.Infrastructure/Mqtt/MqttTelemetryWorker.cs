@@ -1,6 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using DeviceEdgeManagement.Domain.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,20 +7,19 @@ namespace DeviceEdgeManagement.Infrastructure.Mqtt;
 
 public sealed class MqttTelemetryWorker : BackgroundService
 {
-    public const string HttpClientName = "telemetry-ingest";
     private const string TopicFilter = "safeplant/v1/+/telemetry";
 
     private readonly PlantEdgeSettings _settings;
-    private readonly IHttpClientFactory _http;
+    private readonly TelemetryForwarder _forwarder;
     private readonly ILogger<MqttTelemetryWorker> _logger;
 
     public MqttTelemetryWorker(
         PlantEdgeSettings settings,
-        IHttpClientFactory http,
+        TelemetryForwarder forwarder,
         ILogger<MqttTelemetryWorker> logger)
     {
         _settings = settings;
-        _http = http;
+        _forwarder = forwarder;
         _logger = logger;
     }
 
@@ -52,7 +48,7 @@ public sealed class MqttTelemetryWorker : BackgroundService
                     _logger.LogInformation("MQTT subscribed to {Topic}.", TopicFilter);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                await Task.Delay(PlantEdgeTiming.Interval, stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -65,7 +61,7 @@ public sealed class MqttTelemetryWorker : BackgroundService
                     "MQTT broker is not reachable at {Host}:{Port}.",
                     _settings.MqttHost,
                     _settings.MqttPort);
-                await DelayAsync(stoppingToken);
+                await PlantEdgeTiming.DelayAsync(stoppingToken);
             }
         }
 
@@ -87,36 +83,14 @@ public sealed class MqttTelemetryWorker : BackgroundService
         try
         {
             var payload = message.ApplicationMessage.ConvertPayloadToString();
-            if (!TryWithDeviceId(payload, deviceId, out var body))
-            {
-                _logger.LogWarning("MQTT telemetry from {DeviceId} is not a JSON object.", deviceId);
-                return;
-            }
-
-            var http = _http.CreateClient(HttpClientName);
-            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(_settings.IngestUrl, "/internal/v1/telemetry"));
-            request.Headers.TryAddWithoutValidation(TelemetryHeaders.PlantKey, _settings.PlantKey);
-            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
-            using var response = await http.SendAsync(request, stoppingToken);
-            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-            {
-                _logger.LogInformation("Telemetry from {DeviceId} was stored.", deviceId);
-                return;
-            }
-
-            var code = await ReadErrorCodeAsync(response, stoppingToken);
-            _logger.LogWarning(
-                "Telemetry from {DeviceId} was discarded with status {StatusCode} and code {Code}.",
-                deviceId,
-                (int)response.StatusCode,
-                code ?? "");
+            await _forwarder.ForwardAsync(deviceId, payload, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
         }
         catch (Exception exception)
         {
-            _logger.LogWarning(exception, "Telemetry from {DeviceId} was discarded.", deviceId);
+            _logger.LogWarning(exception, "Telemetry from {DeviceId} was not handled.", deviceId);
         }
     }
 
@@ -140,60 +114,5 @@ public sealed class MqttTelemetryWorker : BackgroundService
 
         deviceId = parsed;
         return true;
-    }
-
-    private static bool TryWithDeviceId(string? payload, string deviceId, out string body)
-    {
-        body = "";
-        if (string.IsNullOrWhiteSpace(payload))
-        {
-            return false;
-        }
-
-        try
-        {
-            if (JsonNode.Parse(payload) is not JsonObject document)
-            {
-                return false;
-            }
-
-            document["deviceId"] = deviceId;
-            body = document.ToJsonString();
-            return true;
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
-    }
-
-    private static async Task<string?> ReadErrorCodeAsync(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
-        var text = await response.Content.ReadAsStringAsync(cancellationToken);
-        try
-        {
-            using var document = JsonDocument.Parse(text);
-            if (document.RootElement.TryGetProperty("code", out var code) && code.ValueKind == JsonValueKind.String)
-            {
-                return code.GetString();
-            }
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-
-        return null;
-    }
-
-    private static async Task DelayAsync(CancellationToken stoppingToken)
-    {
-        try
-        {
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-        }
     }
 }

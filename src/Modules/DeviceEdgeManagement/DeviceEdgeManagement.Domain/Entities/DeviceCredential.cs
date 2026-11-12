@@ -24,11 +24,21 @@ public sealed class DeviceCredential
 
     public DateTimeOffset? RevokedAt { get; private set; }
 
+    public DateTimeOffset? LastSeenAt { get; private set; }
+
     public void Revoke(DateTimeOffset revokedAt)
     {
         if (RevokedAt is null)
         {
             RevokedAt = revokedAt;
+        }
+    }
+
+    public void Seen(DateTimeOffset seenAt)
+    {
+        if (LastSeenAt is null || seenAt > LastSeenAt)
+        {
+            LastSeenAt = seenAt;
         }
     }
 }

@@ -42,7 +42,7 @@ public sealed class TelemetryIngestService : ITelemetryIngestService
 
     public void RequirePlantKey(string? presentedKey)
     {
-        if (!FixedEquals(_plantKey, presentedKey))
+        if (!PlantKeys.Matches(_plantKey, presentedKey))
         {
             throw new AppException("unauthorized", 401);
         }
@@ -59,7 +59,7 @@ public sealed class TelemetryIngestService : ITelemetryIngestService
             throw new AppException("device_not_found", 404);
         }
 
-        if (!FixedEquals(_secrets.Hash(secret), credential.SecretHash))
+        if (!PlantKeys.Matches(credential.SecretHash, _secrets.Hash(secret)))
         {
             throw new AppException("unauthorized", 401);
         }
@@ -89,22 +89,25 @@ public sealed class TelemetryIngestService : ITelemetryIngestService
                 await _readings.AppendCarbonDioxideAsync(
                     CarbonDioxideReading.Record(id, deviceId, device.AreaId, ppm, recordedAt),
                     cancellationToken);
-                return;
+                break;
             case Noise:
                 var decibels = RequireNonNegative(reading.Decibels);
                 await _readings.AppendNoiseAsync(
                     NoiseReading.Record(id, deviceId, device.AreaId, decibels, recordedAt),
                     cancellationToken);
-                return;
+                break;
             case Presence:
                 var state = RequirePresence(reading.State);
                 await _readings.AppendPresenceAsync(
                     PresenceChange.Record(id, deviceId, device.AreaId, state, recordedAt),
                     cancellationToken);
-                return;
+                break;
             default:
                 throw new AppException("invalid_reading", 422);
         }
+
+        credential.Seen(_clock.UtcNow);
+        await _credentials.SaveAsync(cancellationToken);
     }
 
     private static string RequireDeviceId(string? deviceId)
@@ -159,20 +162,4 @@ public sealed class TelemetryIngestService : ITelemetryIngestService
         return state;
     }
 
-    private static bool FixedEquals(string expected, string? presented)
-    {
-        if (string.IsNullOrEmpty(expected) || string.IsNullOrEmpty(presented))
-        {
-            return false;
-        }
-
-        var expectedBytes = System.Text.Encoding.UTF8.GetBytes(expected);
-        var presentedBytes = System.Text.Encoding.UTF8.GetBytes(presented);
-        if (expectedBytes.Length != presentedBytes.Length)
-        {
-            return false;
-        }
-
-        return System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(expectedBytes, presentedBytes);
-    }
 }

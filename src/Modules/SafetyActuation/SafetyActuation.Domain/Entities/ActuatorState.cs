@@ -17,4 +17,28 @@ public sealed class ActuatorState
     public string Mode { get; private set; } = "";
 
     public DateTimeOffset LastChangedAt { get; private set; }
+
+    public static ActuatorState Record(
+        Guid id,
+        Guid areaId,
+        string type,
+        string runState,
+        string mode,
+        DateTimeOffset lastChangedAt) =>
+        new()
+        {
+            Id = id,
+            AreaId = areaId,
+            Type = type,
+            RunState = runState,
+            Mode = mode,
+            LastChangedAt = lastChangedAt,
+        };
+
+    public void Apply(string runState, string mode, DateTimeOffset lastChangedAt)
+    {
+        RunState = runState;
+        Mode = mode;
+        LastChangedAt = lastChangedAt;
+    }
 }

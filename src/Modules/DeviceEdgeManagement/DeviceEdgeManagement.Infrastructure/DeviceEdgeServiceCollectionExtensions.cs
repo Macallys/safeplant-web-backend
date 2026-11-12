@@ -48,6 +48,12 @@ public static class DeviceEdgeServiceCollectionExtensions
             settings.CredentialDays));
         services.AddHostedService<DeviceEdgeMigrator>();
         var plantKey = configuration["Ingest:PlantKey"] ?? "";
+        services.AddScoped<IPlantSheetService>(serviceProvider => new PlantSheetService(
+            plantKey,
+            serviceProvider.GetRequiredService<IAreaStore>(),
+            serviceProvider.GetRequiredService<IThresholdStore>(),
+            serviceProvider.GetRequiredService<IDeviceStore>(),
+            serviceProvider.GetRequiredService<IDeviceCredentialStore>()));
         services.AddScoped<ITelemetryIngestService>(serviceProvider => new TelemetryIngestService(
             plantKey,
             serviceProvider.GetRequiredService<IDeviceCredentialStore>(),
@@ -64,10 +70,19 @@ public static class DeviceEdgeServiceCollectionExtensions
     {
         var settings = ReadPlantSettings(configuration);
         services.AddSingleton(settings);
-        services.AddHttpClient(MqttTelemetryWorker.HttpClientName, client =>
+        services.AddSingleton<ISecretHasher, Sha256SecretHasher>();
+        services.AddSingleton<IPlantLocalStore>(_ => new SqlitePlantLocalStore(settings.Sqlite));
+        services.AddHttpClient(CloudIngestClient.HttpClientName, client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+        services.AddSingleton<CloudIngestClient>();
+        services.AddSingleton<IActuatorPublisher, MqttActuatorPublisher>();
+        services.AddSingleton<TelemetryForwarder>();
+        services.AddSingleton<PlantOverrideReceiver>();
+        services.AddHostedService<PlantSheetPullWorker>();
+        services.AddHostedService<ExposureLoopWorker>();
+        services.AddHostedService<OutboundQueueWorker>();
         services.AddHostedService<MqttTelemetryWorker>();
         return services;
     }
@@ -125,7 +140,13 @@ public static class DeviceEdgeServiceCollectionExtensions
             throw new InvalidOperationException("Ingest:PlantKey is required.");
         }
 
-        return new PlantEdgeSettings(host.Trim(), port, uri, plantKey);
+        var sqlite = configuration["Plant:Sqlite"];
+        if (string.IsNullOrWhiteSpace(sqlite))
+        {
+            throw new InvalidOperationException("Plant:Sqlite is required.");
+        }
+
+        return new PlantEdgeSettings(host.Trim(), port, uri, plantKey, sqlite.Trim());
     }
 
     private static int ReadPort(string? raw)

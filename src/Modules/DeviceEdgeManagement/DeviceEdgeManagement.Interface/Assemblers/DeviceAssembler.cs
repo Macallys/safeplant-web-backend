@@ -16,7 +16,8 @@ public sealed record DeviceListItemResponse(
     string? Kind,
     DateTimeOffset IssuedAt,
     DateTimeOffset ExpiresAt,
-    DateTimeOffset? RevokedAt);
+    DateTimeOffset? RevokedAt,
+    DateTimeOffset? LastSeenAt);
 
 public sealed record DeviceListResponse(IReadOnlyList<DeviceListItemResponse> Items);
 
@@ -34,7 +35,8 @@ public static class DeviceAssembler
             item.Kind,
             item.IssuedAt,
             item.ExpiresAt,
-            item.RevokedAt)).ToArray());
+            item.RevokedAt,
+            item.LastSeenAt)).ToArray());
 
     public static RevokeDeviceResponse ToRevoked(RevokedCredential revoked) =>
         new(revoked.DeviceId, revoked.RevokedAt);

@@ -1,3 +1,4 @@
+using PlantMonitoring.Domain.Entities;
 using PlantMonitoring.Domain.Interfaces;
 using SafetyActuation.Domain.Services;
 using SharedKernel.Application;
@@ -7,10 +8,12 @@ namespace SafetyActuation.Application.Services;
 public sealed class OverrideService : IOverrideService
 {
     private readonly IAreaStore _areas;
+    private readonly IPlantOverrideLink _plant;
 
-    public OverrideService(IAreaStore areas)
+    public OverrideService(IAreaStore areas, IPlantOverrideLink plant)
     {
         _areas = areas;
+        _plant = plant;
     }
 
     public async Task OverrideAsync(
@@ -27,11 +30,11 @@ public sealed class OverrideService : IOverrideService
             throw new AppException("invalid_action", 400);
         }
 
-        await FindAreaAsync(areaId, cancellationToken);
-        throw new AppException("edge_unreachable", 503);
+        var area = await FindAreaAsync(areaId, cancellationToken);
+        await _plant.SendAsync(area.Id, actuatorType!, runState!, cancellationToken);
     }
 
-    private async Task FindAreaAsync(string? areaId, CancellationToken cancellationToken)
+    private async Task<IndustrialArea> FindAreaAsync(string? areaId, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(areaId, out var id))
         {
@@ -43,6 +46,8 @@ public sealed class OverrideService : IOverrideService
         {
             throw new AppException("area_not_found", 404);
         }
+
+        return area;
     }
 
     private static bool IsValidPair(string? actuatorType, string? runState) => (actuatorType, runState) switch

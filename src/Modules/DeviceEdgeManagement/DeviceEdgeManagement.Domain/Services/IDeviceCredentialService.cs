@@ -14,7 +14,8 @@ public sealed record DeviceListItem(
     string? Kind,
     DateTimeOffset IssuedAt,
     DateTimeOffset ExpiresAt,
-    DateTimeOffset? RevokedAt);
+    DateTimeOffset? RevokedAt,
+    DateTimeOffset? LastSeenAt);
 
 public interface IDeviceCredentialService
 {
