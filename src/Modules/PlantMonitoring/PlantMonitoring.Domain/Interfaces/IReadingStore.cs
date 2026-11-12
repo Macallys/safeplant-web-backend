@@ -27,4 +27,10 @@ public interface IReadingStore
         DateTimeOffset from,
         DateTimeOffset to,
         CancellationToken cancellationToken);
+
+    Task AppendCarbonDioxideAsync(CarbonDioxideReading reading, CancellationToken cancellationToken);
+
+    Task AppendNoiseAsync(NoiseReading reading, CancellationToken cancellationToken);
+
+    Task AppendPresenceAsync(PresenceChange reading, CancellationToken cancellationToken);
 }

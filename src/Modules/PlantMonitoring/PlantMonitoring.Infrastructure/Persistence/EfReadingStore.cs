@@ -66,4 +66,22 @@ public sealed class EfReadingStore : IReadingStore
             .OrderBy(reading => reading.RecordedAt)
             .ThenBy(reading => reading.Id)
             .ToListAsync(cancellationToken);
+
+    public async Task AppendCarbonDioxideAsync(CarbonDioxideReading reading, CancellationToken cancellationToken)
+    {
+        await _db.CarbonDioxideReadings.AddAsync(reading, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AppendNoiseAsync(NoiseReading reading, CancellationToken cancellationToken)
+    {
+        await _db.NoiseReadings.AddAsync(reading, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AppendPresenceAsync(PresenceChange reading, CancellationToken cancellationToken)
+    {
+        await _db.PresenceChanges.AddAsync(reading, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
+    }
 }

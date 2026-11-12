@@ -1,0 +1,62 @@
+services:
+  timescale:
+    image: timescale/timescaledb:2.22.1-pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-safeplant}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-safeplant}
+      POSTGRES_DB: ${POSTGRES_DB:-safeplant}
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescale-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+
+  cloud-api:
+    build:
+      context: .
+      args:
+        PROJECT: Cloud.Api
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Postgres: Host=timescale;Port=5432;Database=${POSTGRES_DB:-safeplant};Username=${POSTGRES_USER:-safeplant};Password=${POSTGRES_PASSWORD:-safeplant}
+      Iam__SigningKey: ${IAM_SIGNING_KEY:-lab-signing-key-at-least-32-characters}
+      Iam__Seed__Email: ${IAM_SEED_EMAIL:-plant.manager@safeplant.local}
+      Iam__Seed__Password: ${IAM_SEED_PASSWORD:-ChangeMe-lab-1}
+      Timescale__Enabled: "true"
+      Ingest__PlantKey: ${INGEST_PLANT_KEY:-lab-plant-key}
+    ports:
+      - "8080:8080"
+    depends_on:
+      timescale:
+        condition: service_healthy
+
+  plant-host:
+    build:
+      context: .
+      args:
+        PROJECT: Plant.Host
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      Mqtt__Host: mosquitto
+      Mqtt__Port: "1883"
+      Cloud__IngestUrl: http://cloud-api:8080
+      Ingest__PlantKey: ${INGEST_PLANT_KEY:-lab-plant-key}
+    depends_on:
+      - cloud-api
+      - mosquitto
+
+volumes:
+  timescale-data:
+  mosquitto-data:

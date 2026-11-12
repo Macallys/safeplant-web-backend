@@ -36,14 +36,21 @@ if(true){
     });
 }
 
-app.UseHttpsRedirection();
+if (ListensOnHttps(builder.Configuration["ASPNETCORE_URLS"]))
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapIamEndpoints();
 app.MapPlantMonitoringEndpoints();
 app.MapSafetyActuationEndpoints();
 app.MapDeviceEdgeEndpoints();
+app.MapTelemetryIngestEndpoint();
 
 app.Run();
+
+static bool ListensOnHttps(string? urls) =>
+    urls?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true;
 
 static void LoadEnvFile()
 {

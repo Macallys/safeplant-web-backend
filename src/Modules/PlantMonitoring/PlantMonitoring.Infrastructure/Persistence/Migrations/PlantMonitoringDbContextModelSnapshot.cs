@@ -81,8 +81,11 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.CarbonDioxideReading", b =>
                 {
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -100,11 +103,7 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("ppm");
 
-                    b.Property<DateTimeOffset>("RecordedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("recorded_at");
-
-                    b.HasKey("Id");
+                    b.HasKey("RecordedAt", "Id");
 
                     b.HasIndex("AreaId", "RecordedAt");
 
@@ -141,8 +140,11 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.NoiseReading", b =>
                 {
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -160,11 +162,7 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("device_id");
 
-                    b.Property<DateTimeOffset>("RecordedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("recorded_at");
-
-                    b.HasKey("Id");
+                    b.HasKey("RecordedAt", "Id");
 
                     b.HasIndex("AreaId", "RecordedAt");
 
@@ -173,8 +171,11 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlantMonitoring.Domain.Entities.PresenceChange", b =>
                 {
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -188,17 +189,13 @@ namespace PlantMonitoring.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("device_id");
 
-                    b.Property<DateTimeOffset>("RecordedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("recorded_at");
-
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)")
                         .HasColumnName("state");
 
-                    b.HasKey("Id");
+                    b.HasKey("RecordedAt", "Id");
 
                     b.HasIndex("AreaId", "RecordedAt");
 

@@ -3,18 +3,18 @@ using SafetyActuation.Infrastructure;
 using SharedKernel.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
+LoadEnvFile();
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSystemClock();
 builder.Services.AddSafetyActuation();
 builder.Services.AddDeviceEdge();
+builder.Services.AddDeviceEdgePlant(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseApiErrors();
 
 if (app.Environment.IsDevelopment())
@@ -26,30 +26,28 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+if (ListensOnHttps(builder.Configuration["ASPNETCORE_URLS"]))
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    app.UseHttpsRedirection();
+}
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+static bool ListensOnHttps(string? urls) =>
+    urls?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true;
+
+static void LoadEnvFile()
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+    while (directory is not null)
+    {
+        var path = Path.Combine(directory.FullName, ".env");
+        if (File.Exists(path))
+        {
+            DotNetEnv.Env.NoClobber().Load(path);
+            return;
+        }
+
+        directory = directory.Parent;
+    }
 }

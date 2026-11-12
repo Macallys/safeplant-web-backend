@@ -70,8 +70,8 @@ public sealed class PlantMonitoringDbContext : DbContext
         modelBuilder.Entity<CarbonDioxideReading>(reading =>
         {
             reading.ToTable("carbon_dioxide_readings");
-            reading.HasKey(entry => entry.Id);
-            reading.Property(entry => entry.Id).HasColumnName("id");
+            reading.HasKey(entry => new { entry.RecordedAt, entry.Id });
+            reading.Property(entry => entry.Id).HasColumnName("id").ValueGeneratedNever();
             reading.Property(entry => entry.DeviceId).HasColumnName("device_id").HasMaxLength(64).IsRequired();
             reading.Property(entry => entry.AreaId).HasColumnName("area_id");
             reading.Property(entry => entry.Ppm).HasColumnName("ppm");
@@ -86,8 +86,8 @@ public sealed class PlantMonitoringDbContext : DbContext
         modelBuilder.Entity<NoiseReading>(reading =>
         {
             reading.ToTable("noise_readings");
-            reading.HasKey(entry => entry.Id);
-            reading.Property(entry => entry.Id).HasColumnName("id");
+            reading.HasKey(entry => new { entry.RecordedAt, entry.Id });
+            reading.Property(entry => entry.Id).HasColumnName("id").ValueGeneratedNever();
             reading.Property(entry => entry.DeviceId).HasColumnName("device_id").HasMaxLength(64).IsRequired();
             reading.Property(entry => entry.AreaId).HasColumnName("area_id");
             reading.Property(entry => entry.Db).HasColumnName("db");
@@ -102,8 +102,8 @@ public sealed class PlantMonitoringDbContext : DbContext
         modelBuilder.Entity<PresenceChange>(reading =>
         {
             reading.ToTable("presence_changes");
-            reading.HasKey(entry => entry.Id);
-            reading.Property(entry => entry.Id).HasColumnName("id");
+            reading.HasKey(entry => new { entry.RecordedAt, entry.Id });
+            reading.Property(entry => entry.Id).HasColumnName("id").ValueGeneratedNever();
             reading.Property(entry => entry.DeviceId).HasColumnName("device_id").HasMaxLength(64).IsRequired();
             reading.Property(entry => entry.AreaId).HasColumnName("area_id");
             reading.Property(entry => entry.State).HasColumnName("state").HasMaxLength(16).IsRequired();

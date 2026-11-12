@@ -15,4 +15,19 @@ public sealed class PresenceChange
     public string State { get; private set; } = "";
 
     public DateTimeOffset RecordedAt { get; private set; }
+
+    public static PresenceChange Record(
+        Guid id,
+        string deviceId,
+        Guid areaId,
+        string state,
+        DateTimeOffset recordedAt) =>
+        new()
+        {
+            Id = id,
+            DeviceId = deviceId,
+            AreaId = areaId,
+            State = state,
+            RecordedAt = recordedAt,
+        };
 }

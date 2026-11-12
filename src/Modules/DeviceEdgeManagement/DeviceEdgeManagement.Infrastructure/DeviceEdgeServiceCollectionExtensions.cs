@@ -1,6 +1,7 @@
 using DeviceEdgeManagement.Application.Services;
 using DeviceEdgeManagement.Domain.Interfaces;
 using DeviceEdgeManagement.Domain.Services;
+using DeviceEdgeManagement.Infrastructure.Mqtt;
 using DeviceEdgeManagement.Infrastructure.Persistence;
 using DeviceEdgeManagement.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,28 @@ public static class DeviceEdgeServiceCollectionExtensions
             serviceProvider.GetRequiredService<IClock>(),
             settings.CredentialDays));
         services.AddHostedService<DeviceEdgeMigrator>();
+        var plantKey = configuration["Ingest:PlantKey"] ?? "";
+        services.AddScoped<ITelemetryIngestService>(serviceProvider => new TelemetryIngestService(
+            plantKey,
+            serviceProvider.GetRequiredService<IDeviceCredentialStore>(),
+            serviceProvider.GetRequiredService<IDeviceStore>(),
+            serviceProvider.GetRequiredService<IReadingStore>(),
+            serviceProvider.GetRequiredService<ISecretHasher>(),
+            serviceProvider.GetRequiredService<IClock>()));
+        return services;
+    }
+
+    public static IServiceCollection AddDeviceEdgePlant(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var settings = ReadPlantSettings(configuration);
+        services.AddSingleton(settings);
+        services.AddHttpClient(MqttTelemetryWorker.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        services.AddHostedService<MqttTelemetryWorker>();
         return services;
     }
 
@@ -78,5 +101,46 @@ public static class DeviceEdgeServiceCollectionExtensions
         {
             throw new InvalidOperationException("DeviceEdge:CredentialDays must be greater than zero.");
         }
+    }
+
+    private static PlantEdgeSettings ReadPlantSettings(IConfiguration configuration)
+    {
+        var host = configuration["Mqtt:Host"];
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            throw new InvalidOperationException("Mqtt:Host is required.");
+        }
+
+        var port = ReadPort(configuration["Mqtt:Port"]);
+        var ingestUrl = configuration["Cloud:IngestUrl"];
+        if (!Uri.TryCreate(ingestUrl, UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidOperationException("Cloud:IngestUrl must be an absolute http or https URL.");
+        }
+
+        var plantKey = configuration["Ingest:PlantKey"];
+        if (string.IsNullOrWhiteSpace(plantKey))
+        {
+            throw new InvalidOperationException("Ingest:PlantKey is required.");
+        }
+
+        return new PlantEdgeSettings(host.Trim(), port, uri, plantKey);
+    }
+
+    private static int ReadPort(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return 1883;
+        }
+
+        if (!int.TryParse(raw, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var port)
+            || port is < 1 or > 65535)
+        {
+            throw new InvalidOperationException("Mqtt:Port must be an integer from 1 to 65535.");
+        }
+
+        return port;
     }
 }

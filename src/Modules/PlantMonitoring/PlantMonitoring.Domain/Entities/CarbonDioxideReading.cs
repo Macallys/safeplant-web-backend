@@ -15,4 +15,19 @@ public sealed class CarbonDioxideReading
     public int Ppm { get; private set; }
 
     public DateTimeOffset RecordedAt { get; private set; }
+
+    public static CarbonDioxideReading Record(
+        Guid id,
+        string deviceId,
+        Guid areaId,
+        int ppm,
+        DateTimeOffset recordedAt) =>
+        new()
+        {
+            Id = id,
+            DeviceId = deviceId,
+            AreaId = areaId,
+            Ppm = ppm,
+            RecordedAt = recordedAt,
+        };
 }
