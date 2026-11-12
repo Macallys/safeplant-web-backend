@@ -42,7 +42,7 @@ public sealed class ThresholdService : IThresholdService
         decimal? noiseLimitDb,
         CancellationToken cancellationToken)
     {
-        RequireSupervisor(role, channel);
+        RequireWriter(role, channel);
         var co2 = RequireInteger(co2LimitPpm, _co2MinPpm, _co2MaxPpm, "co2_limit_out_of_range");
         var noise = RequireInteger(noiseLimitDb, _noiseMinDb, _noiseMaxDb, "noise_limit_out_of_range");
         var area = await FindAreaAsync(areaId, cancellationToken);
@@ -81,9 +81,11 @@ public sealed class ThresholdService : IThresholdService
         return area;
     }
 
-    private static void RequireSupervisor(string role, string channel)
+    private static void RequireWriter(string role, string channel)
     {
-        if (role != "Supervisor" || channel != "Mobile")
+        var supervisor = role == "Supervisor" && channel == "Mobile";
+        var manager = role == "PlantManager" && channel == "Web";
+        if (!supervisor && !manager)
         {
             throw new AppException("role_not_allowed", 403);
         }

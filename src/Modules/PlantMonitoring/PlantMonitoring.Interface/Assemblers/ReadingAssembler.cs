@@ -22,7 +22,9 @@ public sealed record DashboardItemResponse(
     string? PresenceState,
     string Severity,
     bool AlertActive,
-    bool Highlighted);
+    bool Highlighted,
+    int? Co2LimitPpm,
+    int? NoiseLimitDb);
 
 public sealed record DashboardResponse(IReadOnlyList<DashboardItemResponse> Items);
 
@@ -74,7 +76,9 @@ public static class ReadingAssembler
             item.PresenceState,
             item.Severity,
             item.AlertActive,
-            item.Highlighted)).ToArray());
+            item.Highlighted,
+            item.Co2LimitPpm,
+            item.NoiseLimitDb)).ToArray());
 
     public static AreaHistoryResponse ToHistory(AreaHistory history) =>
         new(

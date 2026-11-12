@@ -20,7 +20,9 @@ public sealed record DashboardItem(
     string? PresenceState,
     string Severity,
     bool AlertActive,
-    bool Highlighted);
+    bool Highlighted,
+    int? Co2LimitPpm,
+    int? NoiseLimitDb);
 
 public sealed record CarbonDioxideHistoryItem(Guid Id, string DeviceId, int Ppm, DateTimeOffset RecordedAt);
 

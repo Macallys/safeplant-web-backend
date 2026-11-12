@@ -10,17 +10,20 @@ public sealed class ReadingService : IReadingService
 {
     private readonly IAreaStore _areas;
     private readonly IReadingStore _readings;
+    private readonly IThresholdStore _thresholds;
     private readonly IAreaSafetyStatus _safety;
     private readonly int _historyMaxDays;
 
     public ReadingService(
         IAreaStore areas,
         IReadingStore readings,
+        IThresholdStore thresholds,
         IAreaSafetyStatus safety,
         int historyMaxDays)
     {
         _areas = areas;
         _readings = readings;
+        _thresholds = thresholds;
         _safety = safety;
         _historyMaxDays = historyMaxDays;
     }
@@ -53,6 +56,8 @@ public sealed class ReadingService : IReadingService
     {
         RequirePlantManager(role, channel);
         var areas = await _areas.ListAsync(cancellationToken);
+        var limits = await _thresholds.ListAsync(cancellationToken);
+        var limitByArea = limits.ToDictionary(entry => entry.AreaId);
         var items = new List<DashboardItem>(areas.Count);
         foreach (var area in areas)
         {
@@ -60,6 +65,7 @@ public sealed class ReadingService : IReadingService
             var noise = await _readings.LatestNoiseAsync(area.Id, cancellationToken);
             var presence = await _readings.LatestPresenceAsync(area.Id, cancellationToken);
             var safety = _safety.ForArea(area.Id);
+            limitByArea.TryGetValue(area.Id, out var limit);
             items.Add(new DashboardItem(
                 area.Id,
                 area.Name,
@@ -68,7 +74,9 @@ public sealed class ReadingService : IReadingService
                 presence?.State,
                 safety.Severity,
                 safety.AlertActive,
-                safety.Highlighted));
+                safety.Highlighted,
+                limit?.Co2LimitPpm,
+                limit?.NoiseLimitDb));
         }
 
         return items;

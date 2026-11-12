@@ -36,7 +36,7 @@ public static class ActuatorPolicy
 
         if (presence is Detected or Cleared)
         {
-            targets.Add(new Target(Barrier, presence == Detected ? Deployed : Retracted));
+            targets.Add(new Target(Barrier, presence == Cleared ? Deployed : Retracted));
         }
 
         return targets;
