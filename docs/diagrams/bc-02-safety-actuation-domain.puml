@@ -1,0 +1,136 @@
+@startuml bc-02-safety-actuation-domain
+' Domain class diagram — Safety & Actuation, as implemented in SafetyActuation.Domain.
+' Severity, actuator type, run state and mode are strings. Policies hold the allowed values.
+
+skinparam classAttributeIconSize 0
+
+class ExposureState <<Entity>> {
+  -areaId: Guid
+  -severity: String
+  -highlighted: Boolean
+  +{static} Record(areaId: Guid, severity: String, highlighted: Boolean): ExposureState
+  +Apply(severity: String, highlighted: Boolean): void
+}
+
+class EnvironmentalAlert <<Entity>> {
+  -id: Guid
+  -areaId: Guid
+  -raisedAt: DateTime
+  -withdrawnAt: DateTime
+  +{static} Raise(id: Guid, areaId: Guid, raisedAt: DateTime): EnvironmentalAlert
+  +Withdraw(withdrawnAt: DateTime): void
+}
+
+class ActuatorState <<Entity>> {
+  -id: Guid
+  -areaId: Guid
+  -type: String
+  -runState: String
+  -mode: String
+  -lastChangedAt: DateTime
+  +{static} Record(id: Guid, areaId: Guid, type: String, runState: String, mode: String, lastChangedAt: DateTime): ActuatorState
+  +Apply(runState: String, mode: String, lastChangedAt: DateTime): void
+}
+
+class ActuatorAction <<Entity>> {
+  -id: Guid
+  -areaId: Guid
+  -type: String
+  -succeeded: Boolean
+  -recordedAt: DateTime
+  +{static} Record(id: Guid, areaId: Guid, type: String, succeeded: Boolean, recordedAt: DateTime): ActuatorAction
+}
+
+class ExposurePolicy <<Domain Service>> {
+  +{static} None: String
+  +{static} Medium: String
+  +{static} High: String
+  +{static} Severity(ppm: Integer, co2LimitPpm: Integer, decibels: Integer, noiseLimitDb: Integer): String
+  +{static} Highlighted(severity: String): Boolean
+}
+
+class ActuatorPolicy <<Domain Service>> {
+  +{static} Extractor: String
+  +{static} Siren: String
+  +{static} Barrier: String
+  +{static} Auto: String
+  +{static} Overridden: String
+  +{static} On: String
+  +{static} Off: String
+  +{static} Deployed: String
+  +{static} Retracted: String
+  +{static} Detected: String
+  +{static} Cleared: String
+  +{static} Targets(co2Known: Boolean, co2High: Boolean, noiseKnown: Boolean, noiseHigh: Boolean, presence: String): Target[]
+  +{static} IsValidPair(actuatorType: String, runState: String): Boolean
+  +{static} IsMode(mode: String): Boolean
+}
+
+class Target <<Value Object>> {
+  +type: String
+  +runState: String
+}
+
+class SafetySync <<Record>> {
+  +areaId: Guid
+  +severity: String
+  +highlighted: Boolean
+}
+
+class SafetyAlertSync <<Record>> {
+  +id: Guid
+  +raisedAt: DateTime
+  +withdrawnAt: DateTime
+}
+
+class SafetyActuatorSync <<Record>> {
+  +id: Guid
+  +type: String
+  +runState: String
+  +mode: String
+  +lastChangedAt: DateTime
+}
+
+class SafetyActionSync <<Record>> {
+  +id: Guid
+  +type: String
+  +succeeded: Boolean
+  +recordedAt: DateTime
+}
+
+interface ISafetyRecordStore <<Store>> {
+  +ListActiveAlerts(): EnvironmentalAlert[]
+  +ListAlertsByArea(areaId: Guid): EnvironmentalAlert[]
+  +ListActionsByArea(areaId: Guid): ActuatorAction[]
+}
+
+interface IActuatorStore <<Store>> {
+  +ListByArea(areaId: Guid): ActuatorState[]
+}
+
+interface ISafetySyncStore <<Store>> {
+  +Upsert(sync: SafetySync): void
+}
+
+interface IPlantOverrideLink <<Port>> {
+  +Send(areaId: Guid, actuatorType: String, runState: String): void
+}
+
+ExposureState "1" -- "0..*" EnvironmentalAlert : areaId >
+ExposureState "1" -- "0..*" ActuatorState : areaId >
+ExposureState "1" -- "0..*" ActuatorAction : areaId >
+
+ExposurePolicy ..> ExposureState : classifies
+ActuatorPolicy ..> Target : returns
+ActuatorPolicy ..> ActuatorState : decides
+
+SafetySync "1" *-- "0..*" SafetyAlertSync
+SafetySync "1" *-- "0..*" SafetyActuatorSync
+SafetySync "1" *-- "0..*" SafetyActionSync
+
+ISafetyRecordStore ..> EnvironmentalAlert : reads
+ISafetyRecordStore ..> ActuatorAction : reads
+IActuatorStore ..> ActuatorState : reads
+ISafetySyncStore ..> SafetySync : upserts
+
+@enduml

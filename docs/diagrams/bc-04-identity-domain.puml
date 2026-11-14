@@ -1,0 +1,73 @@
+@startuml bc-04-identity-domain
+' Domain class diagram — Identity & Access, as implemented in IAM.Domain.
+' Email is a string. The session does not store the access token. Recovery keeps a token hash.
+
+skinparam classAttributeIconSize 0
+
+enum Role {
+  PlantManager
+  Supervisor
+}
+
+enum Channel {
+  Web
+  Mobile
+}
+
+class UserAccount <<Entity>> {
+  -id: Guid
+  -email: String
+  -passwordHash: String
+  -role: Role
+  -enabled: Boolean
+  +Accepts(channel: Channel): Boolean
+  +ChangeRole(role: Role): void
+  +SetEnabled(enabled: Boolean): void
+  +ChangePassword(passwordHash: String): void
+}
+
+class Session <<Entity>> {
+  -id: Guid
+  -accountId: Guid
+  -channel: Channel
+  -expiresAt: DateTime
+  -closedAt: DateTime
+  +{static} Open(id: Guid, accountId: Guid, channel: Channel, expiresAt: DateTime): Session
+  +IsOpen(now: DateTime): Boolean
+  +Close(now: DateTime): void
+}
+
+class RecoveryToken <<Entity>> {
+  -id: Guid
+  -accountId: Guid
+  -tokenHash: String
+  -expiresAt: DateTime
+  -usedAt: DateTime
+  +{static} Issue(id: Guid, accountId: Guid, tokenHash: String, expiresAt: DateTime): RecoveryToken
+  +IsUsable(now: DateTime): Boolean
+  +MarkUsed(now: DateTime): void
+}
+
+interface IIamStore <<Store>> {
+  +FindByEmail(email: String): UserAccount
+  +FindById(id: Guid): UserAccount
+  +List(): UserAccount[]
+  +AddAccount(account: UserAccount): void
+  +AddSession(session: Session): void
+  +FindSession(sessionId: Guid): Session
+  +InvalidateUnusedRecoveryTokens(accountId: Guid, now: DateTime): void
+  +AddRecoveryToken(token: RecoveryToken): void
+  +FindRecoveryTokenByHash(tokenHash: String): RecoveryToken
+  +SaveChanges(): void
+}
+
+UserAccount "1" -- "0..*" Session : accountId >
+UserAccount "1" -- "0..*" RecoveryToken : accountId >
+UserAccount *-- "1" Role
+Session *-- "1" Channel
+
+IIamStore ..> UserAccount : persists
+IIamStore ..> Session : persists
+IIamStore ..> RecoveryToken : persists
+
+@enduml

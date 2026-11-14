@@ -1,0 +1,164 @@
+@startuml bc-03-device-edge-domain
+' Domain class diagram — Device & Edge Management, as implemented in DeviceEdgeManagement.Domain.
+' One bounded context, two deployments: credential on the cloud, sheet and loop on the plant.
+
+skinparam classAttributeIconSize 0
+
+package "Cloud" {
+  class DeviceCredential <<Entity>> {
+    -deviceId: String
+    -secretHash: String
+    -issuedAt: DateTime
+    -expiresAt: DateTime
+    -revokedAt: DateTime
+    -lastSeenAt: DateTime
+    +Revoke(revokedAt: DateTime): void
+    +Seen(seenAt: DateTime): void
+  }
+
+  interface IDeviceCredentialStore <<Store>> {
+    +FindByDeviceId(deviceId: String): DeviceCredential
+    +List(): DeviceCredential[]
+    +Add(credential: DeviceCredential): void
+    +Remove(credential: DeviceCredential): void
+    +Save(): void
+  }
+}
+
+package "Edge" {
+  class PlantSheet <<Record>> {
+  }
+
+  class PlantAreaReplica <<Record>> {
+    +id: Guid
+    +name: String
+    +location: String
+    +updatedAt: DateTime
+  }
+
+  class PlantThresholdReplica <<Record>> {
+    +areaId: Guid
+    +co2LimitPpm: Integer
+    +noiseLimitDb: Integer
+    +updatedAt: DateTime
+  }
+
+  class PlantDeviceReplica <<Record>> {
+    +deviceId: String
+    +areaId: Guid
+    +kind: String
+  }
+
+  class PlantCredentialReplica <<Record>> {
+    +deviceId: String
+    +secretHash: String
+    +expiresAt: DateTime
+    +revokedAt: DateTime
+  }
+
+  class LocalReading <<Record>> {
+    +areaId: Guid
+    +measure: String
+    +deviceId: String
+    +ppm: Integer
+    +decibels: Integer
+    +state: String
+    +recordedAt: DateTime
+  }
+
+  class OutboundMessage <<Record>> {
+    +id: Long
+    +body: String
+  }
+
+  class AreaLoopState <<Record>> {
+    +areaId: Guid
+    +co2LimitPpm: Integer
+    +noiseLimitDb: Integer
+  }
+
+  class LocalExposure <<Record>> {
+    +areaId: Guid
+    +severity: String
+    +highlighted: Boolean
+  }
+
+  class LocalAlert <<Record>> {
+    +id: Guid
+    +areaId: Guid
+    +raisedAt: DateTime
+    +withdrawnAt: DateTime
+  }
+
+  class LocalActuator <<Record>> {
+    +id: Guid
+    +areaId: Guid
+    +type: String
+    +runState: String
+    +mode: String
+    +lastChangedAt: DateTime
+  }
+
+  class LocalAction <<Record>> {
+    +id: Guid
+    +areaId: Guid
+    +type: String
+    +succeeded: Boolean
+    +recordedAt: DateTime
+    +attemptedRunState: String
+    +synced: Boolean
+  }
+
+  class AreaUpdate <<Record>> {
+    +areaId: Guid
+    +writeExposure: Boolean
+    +severity: String
+    +highlighted: Boolean
+    +writeAlerts: Boolean
+  }
+
+  interface IPlantLocalStore <<Store>> {
+    +ReplaceSheet(sheet: PlantSheet): void
+    +FindCredential(deviceId: String): PlantCredentialReplica
+    +FindDevice(deviceId: String): PlantDeviceReplica
+    +SaveReading(reading: LocalReading): void
+    +EnqueueTelemetry(reading: LocalReading, body: String): void
+    +PeekTelemetry(): OutboundMessage
+    +Drop(id: Long): void
+    +ReadLoop(): AreaLoopState[]
+    +ApplyUpdate(update: AreaUpdate, safetyBody: String): void
+    +PeekSafety(): OutboundMessage
+    +CompleteSafety(id: Long, body: String, syncedActionIds: Guid[]): Boolean
+  }
+
+  interface IActuatorPublisher <<Port>> {
+    +Publish(areaId: Guid, type: String, runState: String, mode: String): Boolean
+  }
+}
+
+IDeviceCredentialStore ..> DeviceCredential : persists
+
+PlantSheet "1" *-- "0..*" PlantAreaReplica
+PlantSheet "1" *-- "0..*" PlantThresholdReplica
+PlantSheet "1" *-- "0..*" PlantDeviceReplica
+PlantSheet "1" *-- "0..*" PlantCredentialReplica
+
+AreaLoopState "1" o-- "0..1" LocalReading : carbonDioxide >
+AreaLoopState "1" o-- "0..1" LocalReading : noise >
+AreaLoopState "1" o-- "0..1" LocalReading : presence >
+AreaLoopState "1" o-- "0..1" LocalExposure
+AreaLoopState "1" *-- "0..*" LocalAlert
+AreaLoopState "1" *-- "0..*" LocalActuator
+AreaLoopState "1" *-- "0..*" LocalAction
+
+AreaUpdate "1" *-- "0..*" LocalAlert
+AreaUpdate "1" *-- "0..*" LocalActuator
+AreaUpdate "1" *-- "0..*" LocalAction
+
+IPlantLocalStore ..> PlantSheet : replaces
+IPlantLocalStore ..> LocalReading : saves
+IPlantLocalStore ..> AreaLoopState : reads
+IPlantLocalStore ..> AreaUpdate : applies
+IPlantLocalStore ..> OutboundMessage : queues
+
+@enduml

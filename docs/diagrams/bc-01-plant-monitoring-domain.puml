@@ -1,0 +1,104 @@
+@startuml bc-01-plant-monitoring-domain
+' Domain class diagram — Plant Monitoring, as implemented in PlantMonitoring.Domain.
+' Readings are separate entities keyed by AreaId. Limits and names are primitives, not value objects.
+
+skinparam classAttributeIconSize 0
+
+class IndustrialArea <<Entity>> {
+  -id: Guid
+  -name: String
+  -location: String
+  -updatedAt: DateTime
+  +Update(name: String, location: String, updatedAt: DateTime): void
+}
+
+class AreaThresholds <<Entity>> {
+  -areaId: Guid
+  -co2LimitPpm: Integer
+  -noiseLimitDb: Integer
+  -updatedAt: DateTime
+  +Replace(co2LimitPpm: Integer, noiseLimitDb: Integer, updatedAt: DateTime): void
+}
+
+class AreaDevice <<Entity>> {
+  -id: Guid
+  -areaId: Guid
+  -deviceId: String
+  -kind: String
+}
+
+class CarbonDioxideReading <<Entity>> {
+  -id: Guid
+  -deviceId: String
+  -areaId: Guid
+  -ppm: Integer
+  -recordedAt: DateTime
+  +{static} Record(id: Guid, deviceId: String, areaId: Guid, ppm: Integer, recordedAt: DateTime): CarbonDioxideReading
+}
+
+class NoiseReading <<Entity>> {
+  -id: Guid
+  -deviceId: String
+  -areaId: Guid
+  -db: Integer
+  -recordedAt: DateTime
+  +{static} Record(id: Guid, deviceId: String, areaId: Guid, decibels: Integer, recordedAt: DateTime): NoiseReading
+}
+
+class PresenceChange <<Entity>> {
+  -id: Guid
+  -deviceId: String
+  -areaId: Guid
+  -state: String
+  -recordedAt: DateTime
+  +{static} Record(id: Guid, deviceId: String, areaId: Guid, state: String, recordedAt: DateTime): PresenceChange
+}
+
+interface IAreaStore <<Store>> {
+  +FindById(id: Guid): IndustrialArea
+  +FindByName(name: String): IndustrialArea
+  +List(): IndustrialArea[]
+  +Add(area: IndustrialArea): void
+  +SaveChanges(): void
+}
+
+interface IThresholdStore <<Store>> {
+  +FindByAreaId(areaId: Guid): AreaThresholds
+  +List(): AreaThresholds[]
+  +Add(thresholds: AreaThresholds): AreaThresholds
+  +SaveChanges(): void
+}
+
+interface IDeviceStore <<Store>> {
+  +FindByDeviceId(deviceId: String): AreaDevice
+  +List(): AreaDevice[]
+  +ListByAreaId(areaId: Guid): AreaDevice[]
+  +Add(device: AreaDevice): void
+}
+
+interface IReadingStore <<Store>> {
+  +LatestCarbonDioxide(areaId: Guid): CarbonDioxideReading
+  +LatestNoise(areaId: Guid): NoiseReading
+  +LatestPresence(areaId: Guid): PresenceChange
+  +CarbonDioxideBetween(areaId: Guid, from: DateTime, to: DateTime): CarbonDioxideReading[]
+  +NoiseBetween(areaId: Guid, from: DateTime, to: DateTime): NoiseReading[]
+  +PresenceBetween(areaId: Guid, from: DateTime, to: DateTime): PresenceChange[]
+  +AppendCarbonDioxide(reading: CarbonDioxideReading): void
+  +AppendNoise(reading: NoiseReading): void
+  +AppendPresence(reading: PresenceChange): void
+}
+
+IndustrialArea "1" -- "0..1" AreaThresholds : areaId >
+IndustrialArea "1" -- "0..*" AreaDevice : areaId >
+IndustrialArea "1" -- "0..*" CarbonDioxideReading : areaId >
+IndustrialArea "1" -- "0..*" NoiseReading : areaId >
+IndustrialArea "1" -- "0..*" PresenceChange : areaId >
+
+IAreaStore ..> IndustrialArea : persists
+IThresholdStore ..> AreaThresholds : persists
+IDeviceStore ..> AreaDevice : persists
+IReadingStore ..> CarbonDioxideReading : persists
+IReadingStore ..> NoiseReading : persists
+IReadingStore ..> PresenceChange : persists
+
+@enduml
