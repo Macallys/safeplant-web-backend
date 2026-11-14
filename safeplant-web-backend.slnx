@@ -34,4 +34,7 @@
     <Project Path="src/Modules/SharedKernel/SharedKernel.Domain/SharedKernel.Domain.csproj" />
     <Project Path="src/Modules/SharedKernel/SharedKernel.Infrastructure/SharedKernel.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SafePlant.UnitTests/SafePlant.UnitTests.csproj" />
+  </Folder>
 </Solution>

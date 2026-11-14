@@ -100,7 +100,7 @@ public static class SafetyActuationEndpointExtensions
                 body.ActuatorType,
                 body.RunState,
                 cancellationToken);
-            return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+            return Results.NoContent();
         });
 
         return app;
