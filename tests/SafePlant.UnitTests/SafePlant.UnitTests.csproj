@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Moq" Version="4.21.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\IAM\IAM.Application\IAM.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\IAM\IAM.Domain\IAM.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SafetyActuation\SafetyActuation.Application\SafetyActuation.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SafetyActuation\SafetyActuation.Domain\SafetyActuation.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\PlantMonitoring\PlantMonitoring.Application\PlantMonitoring.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\PlantMonitoring\PlantMonitoring.Domain\PlantMonitoring.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SharedKernel\SharedKernel.Application\SharedKernel.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SharedKernel\SharedKernel.Domain\SharedKernel.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
